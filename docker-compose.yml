@@ -1,0 +1,51 @@
+version: '3'
+
+networks: 
+  laravel:
+
+services: 
+  nginx:
+    image: nginx:stable-alpine
+    container_name: nginx
+    ports: 
+      - "8000:80"
+    volumes: 
+      - ./src:/var/www
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on: 
+      - php
+      - mysql
+    networks: 
+      - laravel
+
+  mysql:
+    image: mysql:5.7.22
+    container_name: mysql
+    restart: unless-stopped
+    tty: true
+    ports: 
+      - "4306:3306"
+    volumes: 
+      - ./mysql:/var/lib/mysql
+    environment: 
+      MYSQL_DATABASE: silap
+      MYSQL_USER: silap
+      MYSQL_PASSWORD: silap123
+      MYSQL_ROOT_PASSWORD: silap123
+      MYSQL_TAGS: dev
+      MYSQL_NAME: mysql
+    networks: 
+      - laravel
+      
+  php:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: php
+    volumes: 
+      - ./src:/var/www
+    ports: 
+      - "9002:9002"
+    networks: 
+      - laravel
+  
